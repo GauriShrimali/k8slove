@@ -1,0 +1,292 @@
+			-----TASK 1-----
+
+#COMMANDS IN CMD
+    1  vim adhochttpd.dockerfile
+    2  git version
+    3  git clone https://github.com/mdn/beginner-html-site-styled 
+    4  git clone https://github.com/microsoft/project-html-website
+    5  vim start.sh
+    6  cat adhochttpd.dockerfile
+    7  vim adhochttpd.dockerfile
+    8  vim .dockerignore
+    9  ls
+   10  docker build -t gauri20/may2020q1:v1 -f adhochttpd.dockerfile .
+   11  docker images
+   12  docker run --name gauric1q1 -idt -p 9099:80 gauri20/may2020q1:v1
+   13  docker ps
+   14  docker login
+   15  docker push gauri20/may2020q1:v1
+   16  history
+   17  history > task1.txt
+   
+   
+###adhochttpd.dockerfile -- DOCKERFILE
+
+FROM centos
+MAINTAINER gaurishrimali20@gmail.com
+RUN yum install httpd -y
+#to get latest httpd version
+RUN mkdir /mycode
+ENV x=app
+COPY beginner-html-site-styled /mycode/webapp1
+COPY project-html-website /mycode/webapp2
+COPY start.sh /mycode/start.sh
+RUN chmod +x /mycode/start.sh
+EXPOSE 80
+ENTRYPOINT ["/bin/bash","/mycode/start.sh"]
+
+
+### .dockerignore -- DOCKER IGNORE FILE
+
+adhochttpd.dockerfile
+.git
+*.md
+LICENSE
+
+
+### start.sh -- BASH SCRIPT
+
+#!/bin/bash
+if [ "$x" == "app" ] || [ "$x" == "webapp1" ]
+then
+        cp -rf /mycode/webapp1/* /var/www/html/
+        httpd -DFOREGROUND
+elif [ "$x" == "webapp2" ]
+then
+        cp -rf /mycode/webapp2/* /var/www/html/
+        httpd -DFOREGROUND
+else
+        echo "NO WEBAPP FOUND"
+        httpd -DFOREGROUND > /var/www/html/index.html
+fi
+
+
+
+
+			-----TASK 2-----
+			
+###COMMANDS IN CMD
+	1 vim q2.yaml
+	2 kubectl create -f q2.yaml -n=gauri20
+	3 kubectl get pods -o wide -n=gauri20
+
+
+###q2.yaml -- YAML FILE
+
+apiVersion: v1
+kind: Pod
+metadata: 
+ name: adhocpod1
+ labels:
+  adhoc: gauriq2
+spec:
+ containers:
+ - image: nginx
+   name: gauric1
+   ports:
+   - containerPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: q2svcgauri
+spec:
+  selector:
+   adhoc: gauriq2
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9300
+      
+      
+			-----TASK 3-----
+
+###COMMANDS IN CMD
+	1 vim q3.yaml
+	2 kubectl label nodes ip-172-31-36-77.ec2.internal k8s=node2
+	3 kubectl label nodes ip-172-31-36-77.ec2.internal k8s=node2 -n=gauri20
+	4  kubectl get nodes --show-labels -n=gauri20
+	5  kubectl create -f q3.yaml -n=gauri20 --validate=false
+	6  kubectl get pods -o wide -n=gauri20
+
+
+###q3.yaml -- YAML FILE
+
+apiVersion: v1
+kind: Pod
+metadata:
+ name: adhocpod2
+ labels:
+  adhoc: gauriq3
+spec:
+ containers:
+ - image: gauri20/may2020q1:v1
+   name: gauric2
+   ports:
+   - containerPort: 80
+   env:
+   - name: x
+     value: webapp2
+   nodeSelector:
+    k8s: node2
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: q3svcgauri
+  labels:
+   adhoc: gauriq3
+spec:
+  selector:
+   adhoc: gauriq3
+  type: NodePort
+  ports:
+    - port: 443
+      nodePort: 30330
+      name: https
+      
+      
+ 
+			-----TASK 4-----
+
+###COMMANDS IN CMD
+	1 vim q4rs.yaml
+	2 kubectl create -f q4rs.yaml --validate=false -n=gauri20
+	3 kubectl get pods -n=gauri20
+	4 kubectl get pods -o wide -n=gauri20
+	
+
+###q4rs.yaml -- YAML FILE
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+ name: adhocrsgauri4
+ labels:
+  adhoc: gauriq4
+spec:
+ selector: 
+  matchLabels:
+   x: hello
+ replicas: 2
+ template: 
+  metadata: 
+   name: adhocpod3
+   labels:
+    x: hello
+  spec:
+   containers:
+    - name: gauric4
+      image: gauri20/may2020q1:v1
+      ports:
+       - containerPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: q4svcgauri
+spec:
+  selector:
+   adhoc: gauriq4
+  type: LoadBalancer
+  ports:
+   - port: 80
+     loadBalancer: 31113
+     name: http
+     
+     
+     
+			-----TASK 5-----
+###COMMANDS IN CMD
+  1  vim q5dep1.yaml
+  2  kubectl create -f q5dep1.yaml --validate=false -n=gauri20
+
+
+###
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adhocdepgauri5
+  labels:
+   adhoc: gauriq5
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+     adhoc: gauriq5
+  template:
+    metadata:
+      labels:
+       adhoc: gauriq5
+    spec:
+      containers:
+      - name: gauric5
+        image: gauri20/may2020q1:v1
+        ports:
+        - containerPort: 80
+          
+---       
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: q5svcgauri
+spec:
+  selector:
+   adhoc: gauriq5
+  type: LoadBalancer
+  ports:
+   - port: 80
+     loadBalancer: 31113
+     name: http
+     
+     
+     
+ 			-----TASK 6-----
+ 			
+###COMMANDS IN CMD
+	1 vim portainer.yaml
+	2 kubectl label nodes ip-172-31-41-104.ec2.internal k8s=node3
+	3 kubectl create -f q5dep1.yaml --validate=false -n=gauri20
+
+
+###portainer.yaml -- YAML FILE
+
+apiVersion: v1
+kind: Pod
+metadata: 
+ name: adhocpod6
+ labels:
+  adhoc: gauriq6
+spec:
+ containers:
+ - image: portainer/portainer
+   name: gauric6
+   nodeSelector:
+    k8s: node3
+   ports:
+   - containerPort: 9000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: q6svcgauri
+  labels:
+   adhoc: gauriq6
+spec:
+  selector:
+   adhoc: gauriq6
+  type: NodePort
+  ports:
+    - port: 80
+      nodePort: 30331
+      name: http
+
